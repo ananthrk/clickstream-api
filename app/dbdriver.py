@@ -9,7 +9,7 @@ class DB:
     def __init__(self, db_file=None):
         try:
             if not db_file:
-                self.DATABASE = os.path.abspath(os.path.join(os.path.dirname( __file__ ), '..', 'db/pageview_stats.db'))
+                self.DATABASE = os.path.abspath(os.path.join(os.path.dirname( __file__ ), 'db/pageview_stats.db'))
             else:
                 self.DATABASE = db_file
             #print self.DATABASE

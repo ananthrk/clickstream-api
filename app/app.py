@@ -3,6 +3,8 @@ from dbdriver import DB
 
 app = Flask(__name__)
 
+field_map = { "page" : "curr_name", "referer" : "prev_name", "count" : "num_requests" }
+operators = { "eq" : "=", "like" : "LIKE", "contains" : "LIKE '%%'", "gt" : ">", "lt" : "<", "gte" : ">=", "lte" : "<=", "ne" : "!=" }
 
 @app.route("/")
 def index():

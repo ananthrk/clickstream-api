@@ -1,0 +1,4 @@
+tools.labsdb
+s52469__pageviews
+<username>
+<password>

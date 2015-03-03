@@ -1,10 +1,10 @@
 from flask import Flask, render_template, request, jsonify
-from dbdriver import DB
+from dbdriver import SQLiteDB
 
 app = Flask(__name__)
 
-field_map = { "page" : "curr_name", "referer" : "prev_name", "count" : "num_requests" }
-operators = { "eq" : "=", "like" : "LIKE", "contains" : "LIKE '%%'", "gt" : ">", "lt" : "<", "gte" : ">=", "lte" : "<=", "ne" : "!=" }
+#field_map = { "page" : "curr_name", "referer" : "prev_name", "count" : "num_requests" }
+#operators = { "eq" : "=", "like" : "LIKE", "contains" : "LIKE '%%'", "gt" : ">", "lt" : "<", "gte" : ">=", "lte" : "<=", "ne" : "!=" }
 
 @app.route("/")
 def index():
@@ -54,7 +54,7 @@ def referer_page_report():
 
 
 def _fetch(query):
-    results = DB().fetchall(query)
+    results = SQLiteDB().fetchall(query)
     app.logger.debug('%s yielded %s results', query, len(results))
     return jsonify({'results' : results })
 
@@ -90,6 +90,9 @@ def _compose_filters(request, query):
     max_count = request.args.get('max_count', None)
     if max_count:
         query = _join(query, "num_requests <= " + max_count)
+    lang = request.args.get('lang', None)
+    if lang:
+        query = _join(query, "language = '" + lang + "'")
     start_date = request.args.get('start_date', None)
     if start_date:
         query = _join(query, "DATE(ts) >= '" + start_date + "'")

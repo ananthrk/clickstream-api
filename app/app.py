@@ -4,9 +4,6 @@ from dbdriver import DB
 
 app = Flask(__name__)
 
-#field_map = { "page" : "curr_name", "referer" : "prev_name", "count" : "num_requests" }
-#operators = { "eq" : "=", "like" : "LIKE", "contains" : "LIKE '%%'", "gt" : ">", "lt" : "<", "gte" : ">=", "lte" : "<=", "ne" : "!=" }
-
 @app.route("/")
 def index():
     return render_template('index.html')
@@ -20,7 +17,7 @@ def pages_list():
 
 @app.route("/report/pageviews", methods=['GET'])
 def pageviews_report():
-    query = 'SELECT curr_name, SUM(num_requests) AS num_requests FROM clickstream_data'
+    query = 'SELECT curr_name, CAST(SUM(num_requests) AS SIGNED) num_requests FROM clickstream_data'
     query = _compose_filters(request, query)
     query = query + ' GROUP BY curr_name ORDER by num_requests DESC;'
 
@@ -61,12 +58,11 @@ def _fetch(query):
     elapsed = time.time() - start
     print('[{}] finished in {} ms'.format('DB fetch', int(elapsed * 1000)))
     app.logger.debug('%s yielded %s results', query, len(results))
-    return jsonify({'results' : results })
-    #start = time.time()
-    #result = jsonify({'results' : results })
-    #elapsed = time.time() - start
-    #print('[{}] finished in {} ms'.format('jsonify', int(elapsed * 1000)))
-    #return result
+    start = time.time()
+    json_result = jsonify({'results' : results })
+    elapsed = time.time() - start
+    print('[{}] finished in {} ms'.format('jsonify', int(elapsed * 1000)))
+    return json_result
 
 
 def _compose_filters(request, query):

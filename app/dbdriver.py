@@ -2,6 +2,7 @@
 import sqlite3
 import MySQLdb
 import sys
+import traceback
 import os
 
 SERVER = 'tools.labsdb'
@@ -52,7 +53,7 @@ class DB:
             #close connection
             self.close_connection()
         
-        return results
+        return list(results)
     
     def execute(self, sql):
         try:            
@@ -76,6 +77,7 @@ class DB:
             # Commit all the rows
             self.conn.commit()
         except:            
+            print traceback.format_exc()
             error_msg = ERR_MSG % (sys.exc_info()[1], sys.exc_info()[2].tb_lineno)
             print error_msg
             # Rollback in case there is any error

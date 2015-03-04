@@ -22,7 +22,7 @@ for idx, row in enumerate(read_file(sys.argv[1])):
         break
     if row[0] == '':
     	row[0] = None
-	if row[1] == '':
+    if row[1] == '':
     	row[1] = None
     vals.append(tuple(row) + (month,))
     ct = ct + 1

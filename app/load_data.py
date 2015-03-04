@@ -15,15 +15,19 @@ def read_file(path):
             yield row
 
 for idx, row in enumerate(read_file(sys.argv[1])):
-    if (idx > 0 and idx % 10000 == 0):
-    	DB().execute_many(query, vals)
+    if (idx > 0 and idx % 50000 == 0):
+        DB().execute_many(query, vals)
         del vals[:]
-        print 'Finished 10000 rows'
+        print 'Finished 50000 rows'
         break
     if row[0] == '':
-    	row[0] = None
+        row[0] = None
     if row[1] == '':
-    	row[1] = None
+        row[1] = None
     vals.append(tuple(row) + (month,))
     ct = ct + 1
+if len(vals) > 0:
+    DB().execute_many(query, vals)
+    print 'Finished ' + str(len(vals)) + ' rows'
+    del vals[:]
 print "Count: ", ct

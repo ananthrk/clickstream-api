@@ -1,3 +1,4 @@
+import time
 from flask import Flask, render_template, request, jsonify
 from dbdriver import DB
 
@@ -55,9 +56,16 @@ def referer_page_report():
 
 def _fetch(query):
     print query
+    start = time.time()
     results = DB().fetchall(query)
+    elapsed = time.time() - start
+    print('[{}] finished in {} ms'.format('DB fetch', int(elapsed * 1000)))
     app.logger.debug('%s yielded %s results', query, len(results))
-    return jsonify({'results' : results })
+    start = time.time()
+    result = jsonify({'results' : results })
+    elapsed = time.time() - start
+    print('[{}] finished in {} ms'.format('jsonify', int(elapsed * 1000)))
+    return result
 
 
 def _compose_filters(request, query):

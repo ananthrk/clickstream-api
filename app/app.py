@@ -1,5 +1,5 @@
 from flask import Flask, render_template, request, jsonify
-from dbdriver import SQLiteDB
+from dbdriver import DB
 
 app = Flask(__name__)
 
@@ -13,31 +13,31 @@ def index():
 
 @app.route("/pages/list", methods=['GET'])
 def pages_list():
-    query = 'SELECT DISTINCT(curr_name) FROM pageviews;'
+    query = 'SELECT DISTINCT(curr_name) FROM clickstream_data;'
     return _fetch(query)
 
 
 @app.route("/report/pageviews", methods=['GET'])
 def pageviews_report():
-    query = 'SELECT curr_name, SUM(num_requests) AS num_requests FROM pageviews'
+    query = 'SELECT curr_name, SUM(num_requests) AS num_requests FROM clickstream_data'
     query = _compose_filters(request, query)
     query = query + ' GROUP BY curr_name ORDER by num_requests DESC;'
 
     return _fetch(query)
 
 
-@app.route("/report/daywise/pageviews", methods=['GET'])
-def pageviews_daywise_report():
-    query = 'SELECT curr_name, DATE(ts), SUM(num_requests) AS num_requests FROM pageviews'
+@app.route("/report/monthwise/pageviews", methods=['GET'])
+def pageviews_monthwise_report():
+    query = 'SELECT curr_name, `month`, SUM(num_requests) AS num_requests FROM clickstream_data'
     query = _compose_filters(request, query)
-    query = query + ' GROUP BY curr_name, DATE(ts) ORDER by curr_name, DATE(ts);'
+    query = query + ' GROUP BY curr_name, `month` ORDER by curr_name, month;'
 
     return _fetch(query)
 
 
 @app.route("/report/referer", methods=['GET'])
 def referer_report():
-    query = 'SELECT prev_name, SUM(num_requests) AS num_requests FROM pageviews'
+    query = 'SELECT prev_name, SUM(num_requests) AS num_requests FROM clickstream_data'
     query = _compose_filters(request, query)
     query = query + ' GROUP BY prev_name ORDER by num_requests DESC;'
 
@@ -46,7 +46,7 @@ def referer_report():
 
 @app.route("/report/referer/page", methods=['GET'])
 def referer_page_report():
-    query = 'SELECT curr_name, prev_name, SUM(num_requests) AS num_requests FROM pageviews'
+    query = 'SELECT curr_name, prev_name, SUM(num_requests) AS num_requests FROM clickstream_data'
     query = _compose_filters(request, query)
     query = query + ' GROUP BY curr_name, prev_name ORDER by num_requests DESC;'
 
@@ -54,7 +54,8 @@ def referer_page_report():
 
 
 def _fetch(query):
-    results = SQLiteDB().fetchall(query)
+    print query
+    results = DB().fetchall(query)
     app.logger.debug('%s yielded %s results', query, len(results))
     return jsonify({'results' : results })
 
@@ -84,21 +85,18 @@ def _compose_filters(request, query):
     referer = request.args.get('referer', None)
     if referer:
         query = _join(query, "prev_name LIKE '" + referer + "'")
+    project = request.args.get('project', None)
+    if project:
+        query = _join(query, "project = '" + project + "'")
+    month = request.args.get('month', None)
+    if month:
+        query = _join(query, "`month` = " + month)
     min_count = request.args.get('min_count', None)
     if min_count:
         query = _join(query, "num_requests >= " + min_count)
     max_count = request.args.get('max_count', None)
     if max_count:
         query = _join(query, "num_requests <= " + max_count)
-    lang = request.args.get('lang', None)
-    if lang:
-        query = _join(query, "language = '" + lang + "'")
-    start_date = request.args.get('start_date', None)
-    if start_date:
-        query = _join(query, "DATE(ts) >= '" + start_date + "'")
-    end_date = request.args.get('end_date', None)
-    if end_date:
-        query = _join(query, "DATE(ts) <= '" + end_date + "'")
     
     return query
 

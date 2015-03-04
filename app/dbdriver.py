@@ -5,9 +5,9 @@ import sys
 import os
 
 SERVER = 'tools.labsdb'
-DATABASE = 's52469__pageviews'
+DATABASE = 's52469__clickstream_p'
 USERNAME = 's52469'
-PASSWORD = 'ohhaichawaigohfe'
+PASSWORD = ''
 ERR_MSG = 'ERROR : %s \nLINE NUMBER : %s'
 
 class DB:    

@@ -1,4 +1,4 @@
 tools.labsdb
-s52469__pageviews
+s52469__clickstream_p
 <username>
 <password>
